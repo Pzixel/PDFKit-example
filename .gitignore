@@ -1,0 +1,10 @@
+src/.idea/*
+[Bb]in/
+[Oo]bj/
+src/.vscode/*
+src/.vs/*
+.vscode/*
+node_modules/
+dist/
+.idea/
+build/
