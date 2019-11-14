@@ -1,4 +1,5 @@
 ﻿const path = require('path');
+const StringReplacePlugin = require("string-replace-webpack-plugin");
 
 const {
     NODE_ENV = 'production',
@@ -14,7 +15,12 @@ module.exports = {
     },
     resolve: {
         extensions: ['.ts', '.js'],
+        alias: {
+          'unicode-properties': 'unicode-properties/unicode-properties.cjs.js',
+          'pdfkit': 'pdfkit/js/pdfkit.js'
+        }
     },
+    plugins: [new StringReplacePlugin()],
     module: {
         rules: [
             {
@@ -23,12 +29,24 @@ module.exports = {
                     'ts-loader',
                 ]
             },
-            {enforce: 'post', test: /unicode-properties[\/\\]index.js$/, loader: "transform-loader?brfs"},
-            {enforce: 'post', test: /fontkit[\/\\]index.js$/, loader: "transform-loader?brfs"},
-            {enforce: 'post', test: /linebreak[\/\\]src[\/\\]linebreaker.js/, loader: "transform-loader?brfs"},
-            {enforce: 'post', test: /unicode-properties[\/\\]index.ts$/, loader: "transform-loader?brfs"},
-            {enforce: 'post', test: /fontkit[\/\\]index.ts$/, loader: "transform-loader?brfs"},
-            {enforce: 'post', test: /linebreak[\/\\]src[\/\\]linebreaker.ts/, loader: "transform-loader?brfs"}
+            {
+              enforce: 'pre',
+              test: /unicode-properties[\/\\]unicode-properties/,
+              loader: StringReplacePlugin.replace({
+                replacements: [
+                  {
+                    pattern: "var fs = _interopDefault(require('fs'));",
+                    replacement: function () {
+                      return "var fs = require('fs');";
+                    }
+                  }
+                ]
+              })
+            },
+            {test: /unicode-properties[\/\\]unicode-properties/, loader: "transform-loader?brfs"},
+            {test: /pdfkit[/\\]js[/\\]/, loader: "transform-loader?brfs"},
+            {test: /fontkit[\/\\]index.js$/, loader: "transform-loader?brfs"},
+            {test: /linebreak[\/\\]src[\/\\]linebreaker.js/, loader: "transform-loader?brfs"}            
         ]
     }
 };
